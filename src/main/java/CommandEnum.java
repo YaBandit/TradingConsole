@@ -6,6 +6,8 @@ public enum CommandEnum {
     HELP("help"),
     BUY("buy"),
     SELL("sell"),
+    CONNECT("connect"),
+    LOGIN("login"),
     EXIT("exit");
 
     private final String command;

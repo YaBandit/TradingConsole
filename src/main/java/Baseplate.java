@@ -12,7 +12,7 @@ public class Baseplate {
     /** Start of the application**/
     public static void main(String[] args) {
 
-        System.out.println("-------------------");
+        System.out.println("\n-------------------");
         System.out.println("COMMAND LINE TRADER");
         System.out.println("-------------------\n");
 
@@ -22,10 +22,10 @@ public class Baseplate {
         final BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
         while (!shouldExit) {
-            String input = null;
             try {
-                input = bufferedReader.readLine();
-                shouldExit = commandProcessor.Process(input);
+                System.out.print(CommandProcessor.username + ":  ");
+                final String input = bufferedReader.readLine();
+                shouldExit = commandProcessor.ProcessClientComment(input);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -33,7 +33,7 @@ public class Baseplate {
 
         System.out.println("\n-------------------");
         System.out.println("EXITING");
-        System.out.println("-------------------");
+        System.out.println("-------------------\n");
 
     }
 
