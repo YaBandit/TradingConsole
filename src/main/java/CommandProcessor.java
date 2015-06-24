@@ -8,6 +8,7 @@ public class CommandProcessor {
 
     public static String username = NOT_LOGGED_IN;
     private static boolean loggedIn = false;
+    private static boolean connected = false;
 
     private Trade trade = new Trade();
 
@@ -68,9 +69,13 @@ public class CommandProcessor {
 
     private void Connect(String[] inputs) {
         if (loggedIn) {
-
-
-
+            SocketConnection socketConnection = new SocketConnection();
+            if (socketConnection.validateCommand(inputs)) {
+                socketConnection.connect(inputs[1], Integer.parseInt(inputs[2]));
+                connected = true;
+            } else {
+                Utils.print("Connection was refused");
+            }
         } else {
             Utils.print("Please log in before you can connect");
         }
