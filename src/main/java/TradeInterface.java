@@ -7,6 +7,6 @@ public interface TradeInterface {
 
     void Sell(String[] inputs);
 
-    boolean OrderValidation(String[] order);
+    boolean IsOrderValid(String[] order);
 
 }

@@ -21,26 +21,36 @@ public class CommandProcessor {
             try {
                 commandEnum = CommandEnum.valueOf(inputs[0].toUpperCase());
             } catch (Exception e) {
-                System.out.println("Command not recognised");
+                Utils.print("Command not recognised");
             }
 
-            if (commandEnum != null) {
-                switch (commandEnum) {
-                    case HELP:
-                        break;
-                    case BUY:
-                        trade.Buy(inputs);
-                        break;
-                    case SELL:
-                        trade.Sell(inputs);
-                        break;
-                    case CONNECT:
-                        break;
-                    case LOGIN:
-                        Login(inputs);
-                        break;
-                    case EXIT:
-                        return true;
+            if (loggedIn) {
+                if (commandEnum != null) {
+                    switch (commandEnum) {
+                        case HELP:
+                            Help();
+                            break;
+                        case BUY:
+                            trade.Buy(inputs);
+                            break;
+                        case SELL:
+                            trade.Sell(inputs);
+                            break;
+                        case CONNECT:
+                            break;
+                        case EXIT:
+                            return true;
+                    }
+                }
+            } else {
+                if (commandEnum.equals(CommandEnum.LOGIN)) {
+                    Login(inputs);
+                } else if (commandEnum.equals(CommandEnum.HELP)) {
+                    Help();
+                } else if (commandEnum.equals(CommandEnum.EXIT)) {
+                    return true;
+                }else {
+                    Utils.print("Please log in to use other features");
                 }
             }
         }
@@ -62,7 +72,7 @@ public class CommandProcessor {
 
 
         } else {
-            System.out.println("Please log in before you can connect");
+            Utils.print("Please log in before you can connect");
         }
     }
 
@@ -71,6 +81,14 @@ public class CommandProcessor {
         loggedIn = true;
     }
 
-
+    private void Help() {
+        Utils.print("The following are the usable commands:" +
+                "\n login" +
+                "\n connect" +
+                "\n buy" +
+                "\n sell" +
+                "\n help" +
+                "\n exit");
+    }
 
 }

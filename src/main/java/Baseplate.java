@@ -12,9 +12,9 @@ public class Baseplate {
     /** Start of the application**/
     public static void main(String[] args) {
 
-        System.out.println("\n-------------------");
-        System.out.println("COMMAND LINE TRADER");
-        System.out.println("-------------------\n");
+        Utils.print("\n-------------------");
+        Utils.print("COMMAND LINE TRADER");
+        Utils.print("-------------------\n");
 
         boolean shouldExit = false;
 
@@ -31,9 +31,11 @@ public class Baseplate {
             }
         }
 
-        System.out.println("\n-------------------");
-        System.out.println("EXITING");
-        System.out.println("-------------------\n");
+        Utils.print("\n-------------------");
+        Utils.print("EXITING");
+        Utils.print("-------------------\n");
+
+        System.exit(0);
 
     }
 
