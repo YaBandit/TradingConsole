@@ -3,21 +3,34 @@
  */
 public class Trade implements TradeInterface {
 
+    private final SocketConnection socketConnection;
 
-    public void Buy(String[] inputs) {
-        if (IsOrderValid(inputs)) {
-            final int quantity = Integer.parseInt(inputs[1]);
+    public Trade(SocketConnection socketConnection) {
+        this.socketConnection = socketConnection;
+    }
+
+    public void processOrder(CommandEnum side, String[] inputs) {
+        if (socketConnection.client.isConnected()) {
+            if (IsOrderValid(inputs)) {
+
+
+
+
+
+            } else {
+                Utils.print("Not a valid order");
+            }
         } else {
-            Utils.print("Not a valid buy order");
+            Utils.print("You are not connected to the matching engine");
         }
     }
 
+    public void Buy(String[] inputs) {
+
+    }
+
     public void Sell(String[] inputs) {
-        if (!IsOrderValid(inputs)) {
-            final int quantity = Integer.parseInt(inputs[1]);
-        } else {
-            Utils.print("Not a valid sell order");
-        }
+
     }
 
     /**The command must be validated, otherwise

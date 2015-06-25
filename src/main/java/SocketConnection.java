@@ -1,24 +1,19 @@
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.CharsetDecoder;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Created by dylan on 6/25/2015.
  */
 public class SocketConnection {
 
-    private SocketChannel client;
+    public SocketChannel client;
     private final ByteBuffer buffer = ByteBuffer.allocate(1024);
 
-    private final static int CLIENT_LOGIN_INT = 1;
-    private final static int ORDER_INT = 1;
+
+    private boolean isRegistered;
 
     public boolean validateCommand(String[] inputs) {
 
@@ -38,7 +33,7 @@ public class SocketConnection {
             client = SocketChannel.open(hostAddress);
 
             if (client.isConnected()) {
-                registerClient();
+                isRegistered = registerClient();
                 Utils.print("You are now connected to the matching engine");
             } else {
                 Utils.print("Failed to connect to Matching Engine");
@@ -52,27 +47,27 @@ public class SocketConnection {
         return client.isConnected();
     }
 
-    public void registerClient() {
-        buffer.putInt(CLIENT_LOGIN_INT);
+    public boolean registerClient() throws IOException {
+        buffer.putInt(Utils.CLIENT_LOGIN_INT);
         buffer.putInt(CommandProcessor.username);
-        sendMessage();
+
+        sendMessageAndWaitForResponse();
+
+        int messageType = buffer.getInt();
+
+        // Process Responce
+
+
+        buffer.clear();
+        return true;
     }
 
-    public String sendMessage() {
+    public void sendMessageAndWaitForResponse() {
         try {
             send();
             waitForResponse();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        return "";
-    }
-
-    public void IsLoggedOn() throws IOException {
-        if (waitForResponse()) {
-            String request = decoder.decode(buffer).toString();
-            Utils.print("YOLO");
         }
     }
 

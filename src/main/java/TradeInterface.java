@@ -7,6 +7,8 @@ public interface TradeInterface {
 
     void Sell(String[] inputs);
 
+    void processOrder(CommandEnum side, String[] inputs);
+
     boolean IsOrderValid(String[] order);
 
 }

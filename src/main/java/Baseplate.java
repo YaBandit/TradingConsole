@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 public class Baseplate {
 
     private static final CommandProcessor commandProcessor = new CommandProcessor();
+    private static final String ID = "ID = ";
+    private static final String END = ":  ";
 
     /** Start of the application**/
     public static void main(String[] args) {
@@ -23,7 +25,7 @@ public class Baseplate {
 
         while (!shouldExit) {
             try {
-                System.out.print(CommandProcessor.username + ":  ");
+                System.out.print(ID + CommandProcessor.username + END);
                 final String input = bufferedReader.readLine();
                 shouldExit = commandProcessor.ProcessClientComment(input);
             } catch (IOException e) {

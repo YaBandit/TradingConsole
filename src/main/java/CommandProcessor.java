@@ -10,8 +10,7 @@ public class CommandProcessor {
     private static boolean loggedIn = false;
     private static boolean connected = false;
     private SocketConnection socketConnection = new SocketConnection();
-
-    private Trade trade = new Trade();
+    private Trade trade = new Trade(socketConnection);
 
     public boolean ProcessClientComment(String command) {
 
@@ -36,14 +35,15 @@ public class CommandProcessor {
                             Help();
                             break;
                         case BUY:
-                            trade.Buy(inputs);
+                            trade.processOrder(CommandEnum.BUY, inputs);
                             break;
                         case SELL:
-                            trade.Sell(inputs);
+                            trade.processOrder(CommandEnum.SELL, inputs);
                             break;
                         case CONNECT:
                             Connect(inputs);
                             break;
+
                         case EXIT:
                             return true;
                     }
@@ -74,7 +74,9 @@ public class CommandProcessor {
 
     private void Connect(String[] inputs) {
         if (loggedIn) {
-            SocketConnection socketConnection = new SocketConnection();
+            if (!socketConnection.client.isConnected()) {
+                Utils.print("You are already connected");
+            }
             if (socketConnection.validateCommand(inputs)) {
                 connected = socketConnection.connect(inputs[1], Integer.parseInt(inputs[2]));
             } else {
@@ -98,6 +100,7 @@ public class CommandProcessor {
         Utils.print("The following are the usable commands:" +
                 "\n login" +
                 "\n connect" +
+                "\n register" +
                 "\n buy" +
                 "\n sell" +
                 "\n help" +
