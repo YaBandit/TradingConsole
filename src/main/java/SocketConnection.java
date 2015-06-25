@@ -4,6 +4,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -11,6 +13,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * Created by dylan on 6/25/2015.
  */
 public class SocketConnection {
+
+    private SocketChannel client;
+    private final ByteBuffer buffer = ByteBuffer.allocate(1024);
+
+    private final static int CLIENT_LOGIN_INT = 1;
+    private final static int ORDER_INT = 1;
 
     public boolean validateCommand(String[] inputs) {
 
@@ -22,53 +30,65 @@ public class SocketConnection {
         return true;
     }
 
-    public void connect(String host, int port) {
+    public boolean connect(String host, int port) {
         try {
-            Utils.print("Connection to " + host + " on port " + port);
+            Utils.print("Trying connection to " + host + " on port " + port);
 
             InetSocketAddress hostAddress = new InetSocketAddress(host, port);
-            SocketChannel client = SocketChannel.open(hostAddress);
+            client = SocketChannel.open(hostAddress);
 
-
-
-            System.out.println("Client sending messages to server...");
-
-
-
-
+            if (client.isConnected()) {
+                registerClient();
+                Utils.print("You are now connected to the matching engine");
+            } else {
+                Utils.print("Failed to connect to Matching Engine");
+            }
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-
+        return client.isConnected();
     }
 
+    public void registerClient() {
+        buffer.putInt(CLIENT_LOGIN_INT);
+        buffer.putInt(CommandProcessor.username);
+        sendMessage();
+    }
 
-    public class SocketObject implements Runnable {
-
-        public Queue<String> outgoingMessages = new ConcurrentLinkedDeque();
-        public Queue<String> incomingMessages = new ConcurrentLinkedDeque();
-
-        private SocketChannel client;
-
-        public SocketObject(SocketChannel client) {
-            this.client = client;
+    public String sendMessage() {
+        try {
+            send();
+            waitForResponse();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        public void run() {
-            while (true) {
-                // Send outgoing, and listen to incoming messages
+        return "";
+    }
 
-                try {
-                    ByteBuffer buf = ByteBuffer.allocate(1024);
-                    int bytesRead = client.read(buf);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    public void IsLoggedOn() throws IOException {
+        if (waitForResponse()) {
+            String request = decoder.decode(buffer).toString();
+            Utils.print("YOLO");
         }
+    }
+
+    public void send() throws IOException {
+        buffer.flip();
+        client.write(buffer);
+        buffer.clear();
+    }
+
+    public boolean waitForResponse() throws IOException {
+        int bytes = client.read(buffer);
+        if (bytes == -1) {
+            Utils.print("Connection to matching engine closed");
+            return false;
+        }
+        return true;
     }
 
 }

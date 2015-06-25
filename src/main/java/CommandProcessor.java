@@ -6,9 +6,10 @@ public class CommandProcessor {
     private static final String DELIMITER = " ";
     public static String NOT_LOGGED_IN = "NOT LOGGED IN";
 
-    public static String username = NOT_LOGGED_IN;
+    public static int username = 0;
     private static boolean loggedIn = false;
     private static boolean connected = false;
+    private SocketConnection socketConnection = new SocketConnection();
 
     private Trade trade = new Trade();
 
@@ -28,6 +29,9 @@ public class CommandProcessor {
             if (loggedIn) {
                 if (commandEnum != null) {
                     switch (commandEnum) {
+                        case LOGIN:
+                            Login(inputs);
+                            break;
                         case HELP:
                             Help();
                             break;
@@ -38,6 +42,7 @@ public class CommandProcessor {
                             trade.Sell(inputs);
                             break;
                         case CONNECT:
+                            Connect(inputs);
                             break;
                         case EXIT:
                             return true;
@@ -71,8 +76,7 @@ public class CommandProcessor {
         if (loggedIn) {
             SocketConnection socketConnection = new SocketConnection();
             if (socketConnection.validateCommand(inputs)) {
-                socketConnection.connect(inputs[1], Integer.parseInt(inputs[2]));
-                connected = true;
+                connected = socketConnection.connect(inputs[1], Integer.parseInt(inputs[2]));
             } else {
                 Utils.print("Connection was refused");
             }
@@ -82,8 +86,12 @@ public class CommandProcessor {
     }
 
     private void Login(String[] inputs) {
-        username = inputs[1];
-        loggedIn = true;
+        if (Utils.tryParseInt(inputs[1])) {
+            username = Integer.parseInt(inputs[1]);
+            loggedIn = true;
+        } else {
+            Utils.print("You have entered an incorrect ID");
+        }
     }
 
     private void Help() {
