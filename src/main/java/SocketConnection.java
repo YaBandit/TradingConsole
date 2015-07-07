@@ -11,8 +11,6 @@ public class SocketConnection {
 
     public SocketChannel client;
     private final ByteBuffer buffer = ByteBuffer.allocate(1024);
-
-
     private boolean isRegistered = false;
 
     public boolean validateCommand(String[] inputs) {
@@ -78,40 +76,48 @@ public class SocketConnection {
         return isRegistered;
     }
 
-    public void sendOrder(int symbol, long quantity, int side) {
+    public boolean sendOrder(int symbol, long quantity, int side) {
+
+        boolean successfullyTraded = false;
 
         if (client != null) {
             if (client.isConnected()) {
-                buffer.putInt(BufferProtocol.ORDER_MARKET.getValue());
-                buffer.putInt(CommandProcessor.username);
-                buffer.putInt(symbol);
-                buffer.putLong(quantity);
-                buffer.putInt(side);
+                if (isRegistered) {
+                    buffer.putInt(BufferProtocol.ORDER_MARKET.getValue());
+                    buffer.putInt(CommandProcessor.username);
+                    buffer.putInt(symbol);
+                    buffer.putLong(quantity);
+                    buffer.putInt(side);
 
-                sendMessageAndWaitForResponse();
+                    sendMessageAndWaitForResponse();
 
-                BufferProtocol returnedMsg = getMsgType();
+                    BufferProtocol returnedMsg = getMsgType();
 
-                switch (returnedMsg) {
-                    case ORDER_ACK:
-                        System.out.println("Trade Successfully Executed");
-                        break;
-                    case ORDER_REJECT:
-                        System.out.println("Order was rejected");
-                        buffer.getInt();
-                        int reasonLength = buffer.getInt();
-                        Byte reasonBytes = buffer.get(reasonLength);
-                        String reason = reasonBytes.toString();
-                        System.out.println(reason);
-                        break;
+                    switch (returnedMsg) {
+                        case ORDER_ACK:
+                            System.out.println("Trade Successfully Executed");
+                            successfullyTraded = true;
+                            break;
+                        case ORDER_REJECT:
+                            System.out.println("Order was rejected");
+                            buffer.getInt();
+                            int reasonLength = buffer.getInt();
+                            Byte reasonBytes = buffer.get(reasonLength);
+                            String reason = reasonBytes.toString();
+                            System.out.println(reason);
+                            break;
+                    }
+                    buffer.clear();
+                } else {
+                    System.out.println("You are not registered");
                 }
-                buffer.clear();
             } else {
                 System.out.println("You are not connected");
             }
         } else {
             System.out.println("You are not connected");
         }
+        return successfullyTraded;
     }
 
     public void sendMessageAndWaitForResponse() {

@@ -9,6 +9,8 @@ public enum CommandEnum {
     CONNECT("connect"),
     LOGIN("login"),
     REGISTER("register"),
+    CASH("cash"),
+    INVENTORY("inventory"),
     EXIT("exit");
 
     private final String command;
