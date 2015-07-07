@@ -13,30 +13,28 @@ public class SocketConnection {
     private final ByteBuffer buffer = ByteBuffer.allocate(1024);
 
 
-    private boolean isRegistered;
+    private boolean isRegistered = false;
 
     public boolean validateCommand(String[] inputs) {
 
         int commandArgs = inputs.length;
         if (commandArgs != 3) { return false; }
-
-        if (!Utils.tryParseInt(inputs[2])) { return false; }
+        if (!CommandProcessor.tryParseInt(inputs[2])) { return false; }
 
         return true;
     }
 
     public boolean connect(String host, int port) {
         try {
-            Utils.print("Trying connection to " + host + " on port " + port);
+            System.out.println("Trying connection to " + host + " on port " + port);
 
             InetSocketAddress hostAddress = new InetSocketAddress(host, port);
             client = SocketChannel.open(hostAddress);
 
             if (client.isConnected()) {
-                isRegistered = registerClient();
-                Utils.print("You are now connected to the matching engine");
+                System.out.println("You are now connected to the matching engine");
             } else {
-                Utils.print("Failed to connect to Matching Engine");
+                System.out.println("Failed to connect to Matching Engine");
             }
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -47,19 +45,73 @@ public class SocketConnection {
         return client.isConnected();
     }
 
-    public boolean registerClient() throws IOException {
-        buffer.putInt(Utils.CLIENT_LOGIN_INT);
-        buffer.putInt(CommandProcessor.username);
+    public boolean registerClient() {
 
-        sendMessageAndWaitForResponse();
+        if (client != null) {
+            if (client.isConnected()) {
+                buffer.putInt(BufferProtocol.REGISTER_REQUST.getValue());
+                buffer.putInt(CommandProcessor.username);
 
-        int messageType = buffer.getInt();
+                sendMessageAndWaitForResponse();
 
-        // Process Responce
+                BufferProtocol returnedMsg = getMsgType();
 
+                switch (returnedMsg) {
+                    case REGISTER_ACCEPTED:
+                        System.out.println("Registration Accepted");
+                        int nextInt = buffer.getInt();
+                        System.out.println("You have registered as client: " + nextInt);
+                        isRegistered = true;
+                        break;
+                    case REGISTER_REJECTED:
+                        System.out.println("Registration Rejected");
+                        isRegistered = false;
+                        break;
+                }
+                buffer.clear();
+            } else {
+                System.out.println("You are not connected");
+            }
+        } else {
+            System.out.println("You are not connected");
+        }
+        return isRegistered;
+    }
 
-        buffer.clear();
-        return true;
+    public void sendOrder(int symbol, long quantity, int side) {
+
+        if (client != null) {
+            if (client.isConnected()) {
+                buffer.putInt(BufferProtocol.ORDER_MARKET.getValue());
+                buffer.putInt(CommandProcessor.username);
+                buffer.putInt(symbol);
+                buffer.putLong(quantity);
+                buffer.putInt(side);
+
+                sendMessageAndWaitForResponse();
+
+                BufferProtocol returnedMsg = getMsgType();
+
+                switch (returnedMsg) {
+                    case ORDER_ACK:
+                        System.out.println("Trade Successfully Executed");
+                        break;
+                    case ORDER_REJECT:
+                        System.out.println("Order was rejected");
+                        buffer.getInt();
+                        int reasonLength = buffer.getInt();
+                        Byte reasonBytes = buffer.get(reasonLength);
+                        String reason = reasonBytes.toString();
+                        System.out.println(reason);
+                        break;
+                }
+                buffer.clear();
+            } else {
+                System.out.println("You are not connected");
+            }
+        } else {
+            System.out.println("You are not connected");
+        }
     }
 
     public void sendMessageAndWaitForResponse() {
@@ -71,6 +123,12 @@ public class SocketConnection {
         }
     }
 
+    public BufferProtocol getMsgType() {
+        buffer.flip();
+        int msgTpye = buffer.getInt();
+        return BufferProtocol.forValue(msgTpye);
+    }
+
     public void send() throws IOException {
         buffer.flip();
         client.write(buffer);
@@ -80,7 +138,7 @@ public class SocketConnection {
     public boolean waitForResponse() throws IOException {
         int bytes = client.read(buffer);
         if (bytes == -1) {
-            Utils.print("Connection to matching engine closed");
+            System.out.println("Connection to matching engine closed");
             return false;
         }
         return true;

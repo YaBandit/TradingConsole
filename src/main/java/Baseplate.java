@@ -14,9 +14,9 @@ public class Baseplate {
     /** Start of the application**/
     public static void main(String[] args) {
 
-        Utils.print("\n-------------------");
-        Utils.print("COMMAND LINE TRADER");
-        Utils.print("-------------------\n");
+        System.out.println("\n-------------------");
+        System.out.println("COMMAND LINE TRADER");
+        System.out.println("-------------------\n");
 
         boolean shouldExit = false;
 
@@ -33,9 +33,9 @@ public class Baseplate {
             }
         }
 
-        Utils.print("\n-------------------");
-        Utils.print("EXITING");
-        Utils.print("-------------------\n");
+        System.out.println("\n-------------------");
+        System.out.println("EXITING");
+        System.out.println("-------------------\n");
 
         System.exit(0);
 

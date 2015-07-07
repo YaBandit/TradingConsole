@@ -8,6 +8,7 @@ public enum CommandEnum {
     SELL("sell"),
     CONNECT("connect"),
     LOGIN("login"),
+    REGISTER("register"),
     EXIT("exit");
 
     private final String command;
